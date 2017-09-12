@@ -1,75 +1,142 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  nix.nixPath=["nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixos/nixpkgs:nixos-config=/etc/nixos/configuration.nix"];
 
-  # Use the GRUB 2 boot loader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.version = 2;
-  # boot.loader.grub.efiSupport = true;
-  # boot.loader.grub.efiInstallAsRemovable = true;
-  # boot.loader.efi.efiSysMountPoint = "/boot/efi";
-  # Define on which hard drive you want to install Grub.
-  boot.loader.grub.device = "/dev/sda"; # or "nodev" for efi only
-  boot.loader.grub.splashImage = null;
-
-  # networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Select internationalisation properties.
-  i18n = {
-  #   consoleFont = "Lat2-Terminus16";
-      consoleKeyMap = "croat";
-  #   defaultLocale = "en_US.UTF-8";
-  };
-
-  # Set your time zone.
-  # time.timeZone = "Europe/Amsterdam";
-
-  # List packages installed in system profile. To search by name, run:
-  # $ nix-env -qaP | grep wget
-  environment.systemPackages = with pkgs; [
-     git
+  imports = [
+    ./hardware-configuration.nix
+    ./synaptics.nix
+    ./keyboard.nix
+    ./users.nix
+    ./networking.nix
   ];
 
-  # List services that you want to enable:
+  boot.loader.grub = {
+  	enable = true;
+  	version = 2;
+  	device = "/dev/sda";
+  	splashImage = null;
+  };
 
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  # boot.loader.gummiboot.enable = true;
+  # boot.loader.efi.canTouchEfiVariables = true;
 
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-  networking.networkmanager.enable = true;
+  time.timeZone = "Europe/Zagreb";
 
-  # Enable CUPS to print documents.
+  # search by name: nix-env -qaP | grep <packagename>
+  environment.systemPackages = with pkgs; [
+    wget
+    htop
+
+    unzip
+    p7zip
+
+    compton
+
+    qalculate-gtk
+    octaveFull
+
+    git
+    # kde5.kdiff3
+
+    i3status
+    dmenu
+
+    sublime3
+
+    # firefox
+    chromium
+
+    # blender
+
+    wine
+    # winetricks
+    # playonlinux
+
+    shared_mime_info
+
+    hexchat
+
+    gimp
+
+    epdfview
+    transmission_gtk
+
+    tldr
+    termite							# minimal terminal
+    gnumake m4          # make
+    gcc
+
+    lshw                # list all hardware
+
+    # kde5.spectacle      # screenshots
+    xlibs.xbacklight    # brightness
+
+    xorg.xkill          # click kill x window
+    xorg.xev            # evaluate input events
+
+    xsel                # selection clipboard
+    xbindkeys           # input events
+    xdotool             # emulate input
+  ];
+
+  virtualisation.virtualbox.host.enable = true;
+  users.extraGroups.vboxusers.members = [ "radivarig" ];
+
+
+  nixpkgs.config = {
+    allowUnfree = true;
+
+    # firefox = {
+    #   enableGoogleTalkPlugin = true;
+    #   enableAdobeFlash = true;
+    # };
+
+    chromium = {
+      enablePepperFlash = true; # as no support for (NPAPI) plugins
+      enablePepperPDF = true;
+    };
+  };
+
+#   nixpkgs.config.packageOverrides = pkgs: {
+#     i3 = pkgs.stdenv.lib.overrideDerivation pkgs.i3 (oldAttrs: rec {
+#       src = pkgs.fetchgit {
+#         url = "https://github.com/Airblader/i3.git";
+#         rev = "64141ca625df5e8a780d86704d59eb35ae9109d6";
+#         sha256 = "06xx7chypf7khp3xipilq9jg9ijp2w8dyxjbnwgywkhziw3l4mp1";
+#       };# 
+
+#       postInstall = ''
+#         wrapProgram "$out/bin/i3-save-tree" --prefix PERL5LIB ":" "$PERL5LIB"
+#         mkdir -p $out/man/man1
+#         # cp man/*.1 $out/man/man1qq
+#         for program in $out/bin/i3-sensible-*; do
+#           sed -i 's/which/command -v/' $program
+#         done
+#       '';
+#     });
+#   };
+
+  programs.bash.enableCompletion = true;
+
+  services.openssh.enable = true;
   # services.printing.enable = true;
+  # services.teamviewer.enable = true;
+  services.xserver.enable = true;
 
-  # Enable the X11 windowing system.
-  # services.xserver.enable = true;
-  # services.xserver.layout = "us";
-  # services.xserver.xkbOptions = "eurosign:e";
+  # services.xserver.autorun = false;
+  services.xserver.windowManager.i3 = {
+    enable = true;
+    package = pkgs.i3-gaps;
+  };
 
-  # Enable the KDE Desktop Environment.
-  # services.xserver.displayManager.sddm.enable = true;
-  # services.xserver.desktopManager.plasma5.enable = true;
+#   services.xserver.displayManager = {
+#     slim.defaultUser = "radivarig";
+#     sessionCommands = ''
+#       perl -MTime::HiRes=sleep -e 'sleep 0.0001 while 1' & # remove cpu noise
+#     '';
+#   };
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  # users.extraUsers.guest = {
-  #   isNormalUser = true;
-  #   uid = 1000;
-  # };
 
-  # The NixOS release to be compatible with for stateful data such as databases.
   system.stateVersion = "17.03";
-
 }
