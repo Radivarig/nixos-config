@@ -106,25 +106,6 @@
     };
   };
 
-#   nixpkgs.config.packageOverrides = pkgs: {
-#     i3 = pkgs.stdenv.lib.overrideDerivation pkgs.i3 (oldAttrs: rec {
-#       src = pkgs.fetchgit {
-#         url = "https://github.com/Airblader/i3.git";
-#         rev = "64141ca625df5e8a780d86704d59eb35ae9109d6";
-#         sha256 = "06xx7chypf7khp3xipilq9jg9ijp2w8dyxjbnwgywkhziw3l4mp1";
-#       };# 
-
-#       postInstall = ''
-#         wrapProgram "$out/bin/i3-save-tree" --prefix PERL5LIB ":" "$PERL5LIB"
-#         mkdir -p $out/man/man1
-#         # cp man/*.1 $out/man/man1qq
-#         for program in $out/bin/i3-sensible-*; do
-#           sed -i 's/which/command -v/' $program
-#         done
-#       '';
-#     });
-#   };
-
   programs.bash.enableCompletion = true;
 
   services.openssh.enable = true;
@@ -144,7 +125,6 @@
 #       perl -MTime::HiRes=sleep -e 'sleep 0.0001 while 1' & # remove cpu noise
 #     '';
 #   };
-
 
   system.stateVersion = "17.03";
 }
