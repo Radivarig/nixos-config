@@ -28,6 +28,9 @@
     wget
     htop
 
+    nix-repl
+    nixops
+
     unzip
     p7zip
 
@@ -48,6 +51,10 @@
     chromium
 
     # blender
+
+    ghc
+    haskellPackages.stack
+    haskellPackages.ghc-mod
 
     wine
     # winetricks
@@ -78,6 +85,7 @@
     xsel                # selection clipboard
     xbindkeys           # input events
     xdotool             # emulate input
+    xlibs.xmodmap       # change keyboard map
   ];
 
   virtualisation.virtualbox.host.enable = true;
